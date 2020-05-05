@@ -14,13 +14,13 @@ fn get_probability() -> f64 {
 struct Task(String);
 struct TaskList(Vec<(Task, f64)>);
 impl TaskList {
-    fn new(v: Vec<(Task, f64)>) -> TaskList {
+    fn new(v: Vec<(String, f64)>) -> TaskList {
         let total_probability: f64 = v.iter().map(|e| e.1).sum();
         if total_probability != 1.0 {
             panic!("total probability must add up to 1.0");
         }
 
-        TaskList(v)
+        TaskList(v.into_iter().map(|e| (Task(e.0), e.1)).collect())
     }
 
     fn pick_task(&self) -> &Task {
@@ -46,13 +46,13 @@ mod task_list_test {
     #[should_panic(expected = "total probability must add up to 1.0")]
     fn must_have_valid_probability() {
         let data = vec![(String::from(""), 0.5)];
-        let _ts = TaskList::new(data.into_iter().map(|e| (Task(e.0), e.1)).collect());
+        let _ts = TaskList::new(data);
     }
 
     #[test]
     fn picks_second_task() {
         let data = vec![(String::from("a"), 0.5), (String::from("b"), 0.5)];
-        let ts = TaskList::new(data.into_iter().map(|e| (Task(e.0), e.1)).collect());
+        let ts = TaskList::new(data);
         assert_eq!(ts.pick_task().0, "b");
     }
 }
